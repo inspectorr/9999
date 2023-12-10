@@ -1,5 +1,3 @@
-import uuid
-
 from rest_framework import serializers
 
 from users.models import User
@@ -7,8 +5,7 @@ from users.models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
-        username = uuid.uuid4().hex[:6].upper()
-        validated_data['username'] = username
+        validated_data['username'] = User.generate_username()
         return User.objects.create_user(**validated_data)
 
     class Meta:
