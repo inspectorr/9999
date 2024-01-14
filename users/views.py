@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -43,3 +43,19 @@ class LoginView(JWTLoginMixin, CreateAPIView):
 class UserView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class UserSearchView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        first_name = self.request.GET.get('first_name')
+        last_name = self.request.GET.get('last_name')
+        qs = User.objects.all().order_by('id')
+        if first_name:
+            qs = qs.filter(first_name__startswith=first_name)
+        if last_name:
+            qs = qs.filter(last_name__startswith=last_name)
+        # print(qs.explain())
+        return qs

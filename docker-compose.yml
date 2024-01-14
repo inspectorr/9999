@@ -27,5 +27,17 @@ services:
     depends_on:
       - db
 
+  loadtest:
+    image: django_social_server
+    container_name: django_social_loadtest
+    command: loadtest
+    restart: always
+    volumes:
+      - ./locustfile.py:/app/locustfile.py
+    ports:
+      - "8089:8089"
+    depends_on:
+      - server
+
 volumes:
   postgres_data:
