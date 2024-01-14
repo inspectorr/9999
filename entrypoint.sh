@@ -11,4 +11,6 @@ if [ "$action" = "runserver" ]; then
     --timeout 60 \
     --reload \
     application.wsgi:application
+elif [ "$action" = "loadtest" ]; then
+    locust
 fi

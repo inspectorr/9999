@@ -16,7 +16,7 @@ def run_script():
                 break
             try:
                 full_name, wtf, city = line.split(',')
-                first_name, last_name = full_name.split(' ')
+                last_name, first_name = full_name.split(' ')
                 prepared_users.append(User(**{
                     'first_name': first_name,
                     'last_name': last_name,
