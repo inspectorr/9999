@@ -1,5 +1,7 @@
 FROM python:3.10-slim as python-builder
 
+RUN apt-get update && apt-get install -y gcc python3-dev
+
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
