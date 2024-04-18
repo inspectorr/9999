@@ -1,4 +1,4 @@
-## Django Social
+## 9999
 A simple "social network" app for highload tests.
 
 ### Development
