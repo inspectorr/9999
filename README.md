@@ -11,3 +11,5 @@ To import people.csv to database:
 ```
 docker compose exec server python -m scripts.import_people
 ```
+
+### DB replication
