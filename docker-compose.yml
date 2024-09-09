@@ -1,3 +1,13 @@
+x-db-replica: &db-replica
+  build:
+    context: ./postgres
+    dockerfile: replica.Dockerfile
+  restart: always
+  depends_on:
+    - db_master
+  environment:
+    - PGPASSWORD=replicator_password
+
 services:
   db_master:
     build:
@@ -9,31 +19,15 @@ services:
       - 9999_postgres_master:/var/lib/postgresql/data
 
   db_replica_1:
-    build:
-      context: ./postgres
-      dockerfile: replica.Dockerfile
-    container_name: 9999_db_replica_1
-    restart: always
-    depends_on:
-      - db_master
+    <<: *db-replica
     volumes:
       - 9999_postgres_replica_1:/var/lib/postgresql/data
-    environment:
-      - PGPASSWORD=replicator_password
 
   db_replica_2:
-    build:
-      context: ./postgres
-      dockerfile: replica.Dockerfile
-    container_name: 9999_db_replica_2
-    restart: always
-    depends_on:
-      - db_master
+    <<: *db-replica
     volumes:
       - 9999_postgres_replica_2:/var/lib/postgresql/data
-    environment:
-      - PGPASSWORD=replicator_password
-  
+
   server:
     build: .
     container_name: 9999_server
@@ -46,8 +40,6 @@ services:
       - "8001:8000"
     depends_on:
       - db_master
-      - db_replica_1
-      - db_replica_2
 
   loadtest:
     build: .

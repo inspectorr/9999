@@ -118,23 +118,18 @@ DATABASES = {
         'HOST': 'db_master',
         'PORT': '5432',
     },
-    'replica1': {
+}
+
+REPLICA_COUNT = 2
+for i in range(REPLICA_COUNT):
+    DATABASES[f'replica{i}'] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'db',
         'USER': 'user',
         'PASSWORD': 'password',
-        'HOST': 'db_replica_1',
-        'PORT': '5432',
-    },
-    'replica2': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
-        'USER': 'user',
-        'PASSWORD': 'password',
-        'HOST': 'db_replica_2',
+        'HOST': f'db_replica_{i + 1}',
         'PORT': '5432',
     }
-}
 
 
 class MasterReplicaRouter:
@@ -142,7 +137,9 @@ class MasterReplicaRouter:
         """
         Attempts to read from replicas.
         """
-        return random.choice(['default', 'replica1', 'replica2'])
+        all_keys = list(DATABASES.keys())
+        all_keys.remove('default')
+        return random.choice(all_keys)
 
     def db_for_write(self, *args, **kwargs):
         """

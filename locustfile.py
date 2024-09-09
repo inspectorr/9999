@@ -1,11 +1,13 @@
 import random
 
-from locust import HttpUser, task, between
+from locust import HttpUser, task, between, constant
 
 
 class UserBehavior(HttpUser):
     host = "http://server:8000"
-    wait_time = between(0.1, 0.2)  # время ожидания между задачами для каждого пользователя
+    # время ожидания между задачами для каждого пользователя
+    # wait_time = between(0.1, 0.2)
+    wait_time = constant(1)
 
     def random_cyrillic_string(self, length):
         # генерируем случайную строку из кириллических символов
