@@ -1,23 +1,36 @@
-version: '3.7'
+x-db-replica: &db-replica
+  build:
+    context: ./postgres
+    dockerfile: replica.Dockerfile
+  restart: always
+  depends_on:
+    - db_master
+  environment:
+    - PGPASSWORD=replicator_password
 
 services:
-  db:
-    image: postgres:16.1
-    container_name: django_social_db
+  db_master:
+    build:
+      context: ./postgres
+      dockerfile: master.Dockerfile
+    container_name: 9999_db_master
     restart: always
-    environment:
-      POSTGRES_DB: db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - 9999_postgres_master:/var/lib/postgresql/data
+
+  db_replica_1:
+    <<: *db-replica
+    volumes:
+      - 9999_postgres_replica_1:/var/lib/postgresql/data
+
+  db_replica_2:
+    <<: *db-replica
+    volumes:
+      - 9999_postgres_replica_2:/var/lib/postgresql/data
 
   server:
     build: .
-    image: django_social_server
-    container_name: django_social_server
+    container_name: 9999_server
     platform: linux/amd64
     command: runserver
     restart: always
@@ -26,11 +39,11 @@ services:
     ports:
       - "8001:8000"
     depends_on:
-      - db
+      - db_master
 
   loadtest:
-    image: django_social_server
-    container_name: django_social_loadtest
+    build: .
+    container_name: 9999_loadtest
     command: loadtest
     restart: always
     volumes:
@@ -41,4 +54,6 @@ services:
       - server
 
 volumes:
-  postgres_data:
+  9999_postgres_master:
+  9999_postgres_replica_1:
+  9999_postgres_replica_2:

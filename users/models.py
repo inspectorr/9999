@@ -12,6 +12,8 @@ class User(AbstractUser):
         (FEMALE_SEX, 'female')
     )
 
+    first_name = models.CharField(max_length=150, db_index=True, blank=True)
+    last_name = models.CharField(max_length=150, db_index=True, blank=True)
     birthdate = models.DateField(null=True, blank=True)
     biography = models.TextField(null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)

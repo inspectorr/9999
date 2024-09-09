@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-
+import random
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -70,17 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'application.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
-        'USER': 'user',
-        'PASSWORD': 'password',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
-
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
@@ -119,6 +108,60 @@ LOGGING = {
         },
     },
 }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db',
+        'USER': 'user',
+        'PASSWORD': 'password',
+        'HOST': 'db_master',
+        'PORT': '5432',
+    },
+}
+
+REPLICA_COUNT = 2
+for i in range(REPLICA_COUNT):
+    DATABASES[f'replica{i}'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db',
+        'USER': 'user',
+        'PASSWORD': 'password',
+        'HOST': f'db_replica_{i + 1}',
+        'PORT': '5432',
+    }
+
+
+class MasterReplicaRouter:
+    def db_for_read(self, *args, **kwargs):
+        """
+        Attempts to read from replicas.
+        """
+        all_keys = list(DATABASES.keys())
+        all_keys.remove('default')
+        return random.choice(all_keys)
+
+    def db_for_write(self, *args, **kwargs):
+        """
+        Writes always go to master.
+        """
+        return 'default'
+
+    def allow_relation(self, *args, **kwargs):
+        """
+        Allow relations if a model in the master or the same replica.
+        """
+        return True
+
+    def allow_migrate(self, *args, **kwargs):
+        """
+        All non-auth models end up in this pool.
+        """
+        return True
+
+
+DATABASE_ROUTERS = [MasterReplicaRouter]
+
 
 if DEBUG:
     ALLOWED_HOSTS = ['*']
