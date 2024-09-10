@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view(), name='user_login'),
     path('user/', include('users.urls')),
+    path('', include('django_prometheus.urls')),
 ]
