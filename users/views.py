@@ -52,10 +52,9 @@ class UserSearchView(ListAPIView):
     def get_queryset(self):
         first_name = self.request.GET.get('first_name')
         last_name = self.request.GET.get('last_name')
-        qs = User.objects.all().order_by('id')
+        qs = super().get_queryset().order_by('id')
         if first_name:
             qs = qs.filter(first_name__startswith=first_name)
         if last_name:
             qs = qs.filter(last_name__startswith=last_name)
-        # print(qs.explain())
         return qs
