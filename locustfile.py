@@ -4,7 +4,7 @@ from locust import HttpUser, task, between, constant
 
 
 class UserBehavior(HttpUser):
-    host = "http://server:8000"
+    host = "http://haproxy:8000"
     # время ожидания между задачами для каждого пользователя
     # wait_time = between(0.1, 0.2)
     wait_time = constant(1)
@@ -19,3 +19,7 @@ class UserBehavior(HttpUser):
         last_name = self.random_cyrillic_string(random.randint(1, 2)).capitalize()
         first_name = self.random_cyrillic_string(random.randint(1, 2)).capitalize()
         self.client.get(f'/user/search/?last_name={last_name}&first_name={first_name}')
+
+    # @task(1)
+    # def health_check(self):
+    #     self.client.get('/health/?just=checking')

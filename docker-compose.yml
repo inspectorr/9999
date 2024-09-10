@@ -8,6 +8,16 @@ x-db-replica: &db-replica
   environment:
     - PGPASSWORD=replicator_password
 
+x-server: &server
+  build: .
+  platform: linux/amd64
+  command: runserver
+  restart: always
+  volumes:
+    - ./:/app/
+  depends_on:
+    - db_master
+
 services:
   db_master:
     build:
@@ -31,17 +41,35 @@ services:
       - 9999_postgres_replica_2:/var/lib/postgresql/data
 
   server:
-    build: .
+    <<: *server
     container_name: 9999_server
-    platform: linux/amd64
-    command: runserver
-    restart: always
-    volumes:
-      - ./:/app/
     ports:
       - "8001:8000"
+
+  server_2:
+    <<: *server
+    container_name: 9999_server_2
+    ports:
+      - "8002:8000"
+
+  server_3:
+    <<: *server
+    container_name: 9999_server_3
+    ports:
+      - "8003:8000"
+
+  haproxy:
+    image: haproxy:2.4
+    container_name: 9999_haproxy
+    volumes:
+      - ./haproxy:/usr/local/etc/haproxy
+    ports:
+      - "8004:8000"
+      - "8404:8404"
     depends_on:
-      - db_master
+      - server
+      - server_2
+      - server_3
 
   loadtest:
     build: .
@@ -53,7 +81,7 @@ services:
     ports:
       - "8089:8089"
     depends_on:
-      - server
+      - haproxy
 
   prometheus:
     image: prom/prometheus:v2.54.1
@@ -70,7 +98,7 @@ services:
     ports:
       - "2222:9090"
     depends_on:
-      - server
+      - haproxy
 
   grafana:
     image: grafana/grafana:11.2.0
