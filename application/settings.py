@@ -125,6 +125,7 @@ DATABASES = {
 }
 
 REPLICA_COUNT = 2
+
 for i in range(REPLICA_COUNT):
     DATABASES[f'replica{i}'] = {
         'ENGINE': 'django.db.backends.postgresql',
