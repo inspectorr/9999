@@ -111,6 +111,12 @@ services:
     ports:
       - "3333:3000"
 
+  go_service:
+    build: go_service
+    container_name: 9999_go_service
+    ports:
+      - "8899:8899"
+
 volumes:
   9999_postgres_master:
   9999_postgres_replica_1:
