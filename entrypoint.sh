@@ -6,6 +6,7 @@ if [ "$action" = "runserver" ]; then
   gunicorn \
     --bind 0.0.0.0:8000 \
     --workers 3 \
+    --worker-class gevent \
     --error-logfile - \
     --access-logfile - \
     --timeout 60 \
